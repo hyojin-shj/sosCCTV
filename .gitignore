@@ -1,0 +1,36 @@
+# train.py
+# 1. SIGSEGV (Segmentation Fault)의 정체
+# Airflow는 작업을 실행할 때 현재 프로세스를 복제(Fork)해서 자식 프로세스를 만듭니다.
+# 문제: macOS는 멀티스레드 환경에서 fork()가 일어나는 것을 보안상 매우 위험하다고 판단합니다.
+# 결과: 특히 libarrow나 curl 같은 라이브러리가 초기화될 때 macOS 시스템 설정(프록시 등)에 접근하려고 하면, OS가 즉시 해당 프로세스를 죽여버리고 SIGSEGV 에러를 띄운 것입니다.
+
+# 2. 경로 유실 (num_samples=0)
+# 문제: Airflow는 DAG를 실행할 때 우리가 터미널에서 작업하던 위치(SOScctv 폴더)가 아닌 다른 임시 폴더에서 실행할 때가 많습니다.
+# 결과: 코드에 data/processed라고 상대 경로로 적어두면, Airflow 입장에서는 그 폴더가 보이지 않아 데이터를 하나도 못 읽어온 것입니다.
+
+# 시스템 환경 변수 (.zshrc): * OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES: macOS의 보안 검사를 우회했습니다.
+# no_proxy="*": 네트워크 라이브러리가 시스템 프록시를 건드려 터지는 것을 방지했습니다.
+# Airflow 설정 (airflow.cfg):
+# mp_start_method = spawn: 프로세스 실행 방식을 fork에서 spawn으로 강제 전환하여 macOS 호환성을 확보했습니다.
+# 코드 로직 (train.py):
+# 절대 경로 도입: Airflow가 어디서 실행하든 soscctv/data/processed를 정확히 찾도록 os.path.abspath를 사용하여 경로 문제를 해결했습니
+
+
+# airflow- soscctv_workflow
+# # 1. macOS 전용 포크 안전 설정 추가
+# export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+# # 2. 에어플로우 재실행
+# airflow standalone
+
+# {"admin": "fmMpYg5qh4czTfAV"}
+
+venv/
+__pycache__/
+.DS_Store
+data/new/
+data/processed/
+mlruns/
+mlflow.db
+airflow/logs/
+airflow/airflow-webserver.pid
