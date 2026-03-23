@@ -16,13 +16,13 @@
   </tr>
   <tr>
     <td align="center">
-      <img src="./github/normal.jpeg" width="300"/>
+      <img src="/Users/hyojin/Desktop/SOScctv/github/normal.png" width="300"/>
     </td>
     <td align="center">
-      <img src="./github/fall.png" width="300"/>
+      <img src="/Users/hyojin/Desktop/SOScctv/github/fall.png" width="300"/>
     </td>
     <td align="center">
-      <img src="./github/help.png" width="300"/>
+      <img src="/Users/hyojin/Desktop/SOScctv/github/help.png" width="300"/>
     </td>
   </tr>
 </table>
