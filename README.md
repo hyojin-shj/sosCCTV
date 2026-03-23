@@ -76,8 +76,6 @@
 
 ## 💡 주요 기능 (Key Features)
 
-## 💡 주요 기능 (Key Features)
-
 ### 1️⃣ 실시간 행동 추론 및 데이터 수집 (`main_inference.py`)
 
 - MediaPipe Pose 기반 **17개 관절 추출**
@@ -93,8 +91,8 @@
 
 ### 2️⃣ Airflow 전수 재학습 자동화 (`soscctv_workflow.py`)
 
-| **Airflow DAG Workflow** | **데이터 분류 및 전수 재학습** |
-| :---: | :---: |
+| **Airflow DAG Workflow** |
+| :---: |
 | <img src="https://github.com/user-attachments/assets/1e5ada9f-1e33-4bca-a559-a4f974e028fc" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="airflow_dag" /> | 
 
 - **`data/new` 수거** → **`data/processed/YYYY-MM-DD/` 자동 정리**<br>주기적 재학습 스케줄링 및 모델 지속 개선
@@ -124,9 +122,6 @@
 ---
 
 ## 📂 프로젝트 구조 (Directory Structure)
-
-## 📂 Project Structure
-
 ```
 SOScctv/
 ├── airflow/              # Airflow 환경 및 DAG 설정
@@ -171,7 +166,7 @@ AttributeError: 'SymbolDatabase' object has no attribute 'GetPrototype'
   pip install "protobuf<5.0.0"
 
 ---
-### 🔧 이슈 5: 신규 데이터 학습 시 이전 데이터 망각 문제
+### 🔧 이슈 3: 신규 데이터 학습 시 이전 데이터 망각 문제
 문제: Airflow 재학습 후, 모델이 방금 배운 동작은 잘 맞추지만 예전 데이터를 헷갈려 함.
 
 원인: 학습 스크립트가 data/processed의 루트만 탐색하여 하위 날짜별 폴더에 저장된 기존 데이터를 로드하지 못함.
@@ -183,7 +178,7 @@ glob.glob(os.path.join(data_dir, "**", "*.npy"), recursive=True)를 도입하여
 학습 로그에 현재 로드된 총 데이터 개수를 출력하도록 디버깅 코드 보강 (확인 결과: 2개 → 92개로 정상화).
 
 ---
-### 🔧 이슈 6: 디스코드 알림 시 단순 텍스트 메시지의 한계
+### 🔧 이슈 4: 디스코드 알림 시 단순 텍스트 메시지의 한계
 문제: 위험 알림이 와도 실제 현장 상황을 바로 확인할 수 없음.
 
 원인: 기존 로직은 텍스트(JSON) 기반의 간단한 웹훅 호출만 지원.
