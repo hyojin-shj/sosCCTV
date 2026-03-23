@@ -70,31 +70,48 @@
 | Tracking | MLflow | 실험 및 Loss 추적 |
 | Backend | Python 3.12 | 전체 시스템 로직 |
 | Infra | macOS (M3) | 로컬 고성능 환경 |
-| Alert | Discord Webhook | 위험 상황 알림 |
+| Alert | Discord Webhook | 실시간 위험 상황 텍스트 + 스크린샷 알림 |
 
 ---
 
 ## 💡 주요 기능 (Key Features)
 
+## 💡 주요 기능 (Key Features)
+
 ### 1️⃣ 실시간 행동 추론 및 데이터 수집 (`main_inference.py`)
-- MediaPipe Pose 기반 **17개 관절 추출**
-- 60프레임 단위 행동 분석
-- `S` 키 입력 시 데이터 저장 (`data/new`)
-- 위험 상황 발생 시 **Discord 알림 전송**
+
+| **관절 추출 및 추론 (MediaPipe)** | **S키 데이터 수집 (Raw)** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/5b3d882f-6c89-447c-9f7b-c1c37a52231f" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="mediapipe_inference" /> | <img src="https://github.com/user-attachments/assets/eb6e4f80-3bb2-4aa6-b0ba-d23367025d26" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="s_key_capture" /> |
+| **MediaPipe Pose** 기반 **17개 관절 추출**<br>60프레임 단위 행동 분석 및 추론 | **`S` 키** 입력 시 현재 버퍼 데이터 저장 (`data/new`) |
 
 ---
 
-### 2️⃣ Airflow 자동화 파이프라인 (`soscctv_workflow.py`)
-- `data/new` → `data/processed/YYYY-MM-DD/` 자동 정리
-- 주기적 재학습 스케줄링
-- 데이터 기반 모델 지속 개선
+### 2️⃣ Airflow 전수 재학습 자동화 (`soscctv_workflow.py`)
+
+| **Airflow DAG Workflow** | **데이터 분류 및 전수 재학습** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/1e5ada9f-1e33-4bca-a559-a4f974e028fc" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="airflow_dag" /> | <img src="https://github.com/user-attachments/assets/6c93ce44-c673-45a7-ba29-dbca18e5c561" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="data_processed" /> |
+| **`data/new` 수거** → **`data/processed/YYYY-MM-DD/` 자동 정리**<br>주기적 재학습 스케줄링 및 모델 지속 개선 | **`glob.glob(recursive=True)`**를 활용하여<br>**모든 과거 데이터를 포함한 전수 재학습** 진행 (망각 방지) |
 
 ---
 
-### 3️⃣ MLflow 실험 관리
-- Loss 변화 실시간 추적
-- 하이퍼파라미터 기록 (LR, Batch Size 등)
-- 최적 모델 자동 저장 (`action_model.pth`)
+### 3️⃣ MLflow 실험 및 모델 관리
+
+| **실험 목록 (Experiment List)** | **Loss 및 메트릭 그래프** | **하이퍼파라미터 및 모델 저장** |
+| :---: | :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/6fd0adf2-3a16-4772-8018-98898bf30dce" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="mlflow_experiment_list" /> | <img src="https://github.com/user-attachments/assets/adb47bdf-04d1-476b-b8b3-c35517a9c379" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="mlflow_loss_graph" /> | <img src="https://github.com/user-attachments/assets/087e3f93-7933-4f26-bad9-fe41d0d89ea3" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="mlflow_params" /> |
+| 실험 및 Run 단위 메타데이터 기록 | **Loss 변화** 실시간 추적 (300 Epoch) | 하이퍼파라미터 기록 (LR, Batch Size 등)<br>**최적 모델 자동 저장 (`action_model.pth`)** |
+
+---
+
+### 4️⃣ 실시간 디스코드 알림 (Discord Alert)
+
+| **디스코드 텍스트 + 스크린샷 알림** |
+| :---: |
+| <img src="https://github.com/user-attachments/assets/748a9bb4-ba93-4b6b-9619-89cba9917d1b" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="discord_alert_with_image" /> |
+| **위험 상황 발생 시 실시간 알림**: 현장 사진을 **JPEG로 인코딩**하여 텍스트 메시지와 함께 즉시 전송<br>**지능형 알림**: 신뢰도(Probability) **90% 이상**인 경우에만 알림을 쏘아 오탐지 최소화<br>**쿨타임 설정**: 짧은 시간 내 도배되는 알림 방지 로직 적용 |/>
+
 
 ---
 
@@ -146,28 +163,27 @@ AttributeError: 'SymbolDatabase' object has no attribute 'GetPrototype'
   pip install "protobuf<5.0.0"
 
 ---
+### 🔧 이슈 5: 신규 데이터 학습 시 이전 데이터 망각 문제
+문제: Airflow 재학습 후, 모델이 방금 배운 동작은 잘 맞추지만 예전 데이터를 헷갈려 함.
 
-### 🔧 이슈 3: macOS (M3) 환경에서 Airflow SIGSEGV 에러
-문제: BashOperator 실행 시 프로세스 Fork 과정에서 세그멘테이션 폴트 발생
-
-원인: macOS의 보안 정책과 Python multiprocessing 방식 충돌
+원인: 학습 스크립트가 data/processed의 루트만 탐색하여 하위 날짜별 폴더에 저장된 기존 데이터를 로드하지 못함.
 
 해결:
-- 환경 변수 설정:
-  export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-- airflow.cfg 설정 변경:
-  mp_start_method = spawn
+
+glob.glob(os.path.join(data_dir, "**", "*.npy"), recursive=True)를 도입하여 모든 과거 데이터를 전수 조사하도록 수정.
+
+학습 로그에 현재 로드된 총 데이터 개수를 출력하도록 디버깅 코드 보강 (확인 결과: 2개 → 92개로 정상화).
 
 ---
+### 🔧 이슈 6: 디스코드 알림 시 단순 텍스트 메시지의 한계
+문제: 위험 알림이 와도 실제 현장 상황을 바로 확인할 수 없음.
 
-### 🔧 이슈 4: Airflow 실행 시 상대 경로 인식 불가
-문제: Airflow 스케줄러 환경에서 data/ 경로를 찾지 못해 학습 실패
-
-원인: 실행 환경이 달라지면서 상대 경로 기준이 변경됨
+원인: 기존 로직은 텍스트(JSON) 기반의 간단한 웹훅 호출만 지원.
 
 해결:
-- 프로젝트 루트 기준 절대 경로 방식 도입
-- 예시 코드:
-  import os
-  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-```
+
+requests의 멀티파트(Multipart) 전송 기능을 사용해 OpenCV 프레임을 메모리상에서 바이트로 변환하여 파일로 첨부.
+
+텍스트 메시지와 현장 스크린샷이 동시에 전송되도록 고도화.
+
+
