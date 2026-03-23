@@ -3,18 +3,29 @@
 
 ---
 
-## 🔗 프로젝트 리소스 (Resources)
-- GitHub Repository: 👉 [깃허브 리포지토리 바로가기](#)
-- Demo Video: 👉 [서비스 시현 영상 (준비 중)](#)
-
----
-
 ## 📅 프로젝트 개요
 - **프로젝트 기간**: 2026.03.20 ~ 2026.03.22  
 - **개발자**: 심효진 (@hyojin-shj)  
 - **한 줄 소개**:  
   > 멈춰있는 모델이 아닌, 수집된 데이터로 매주 스스로 성장하는 지능형 SOS CCTV 시스템
-
+<table>
+  <tr>
+    <td align="center"><b>Normal</b></td>
+    <td align="center"><b>Fall</b></td>
+    <td align="center"><b>Help</b></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./github/normal.jpeg" width="300"/>
+    </td>
+    <td align="center">
+      <img src="./github/fall.png" width="300"/>
+    </td>
+    <td align="center">
+      <img src="./github/help.png" width="300"/>
+    </td>
+  </tr>
+</table>
 ---
 
 ## 💡 프로젝트 배경
@@ -28,14 +39,27 @@
 ## 📊 데이터 파이프라인 및 MLOps
 
 ### 1. 데이터 수집 및 관리 전략
-- **Raw Data (`data/new`)**
-  - 실시간 추론 중 캡쳐된 신규 행동 데이터 (.npy)
+- **초기 학습 데이터 (data/processed)**
+ 	•	직접 수집 및 라벨링한 행동 데이터
+	•	클래스 구성:
+	•	0: Normal
+	•	1: Fall
+	•	2: Help
+	•	각 클래스별 30개 샘플로 구성 (총 90개)
+	•	모델의 초기 학습 및 기준 성능 확보에 사용
 
-- **Gold Data (`data/processed`)**
-  - 날짜별 (`YYYY-MM-DD`)로 정제된 학습 데이터셋
+- **실시간 수집 데이터 (data/new)**
+  •	실시간 추론 중 사용자가 S 키 입력 시 캡쳐되는 신규 행동 데이터 (.npy)
+	•	아직 정제되지 않은 Raw Data
+	•	추가 학습을 위한 후보 데이터로 활용
 
-- **Data Flywheel**
-  - 초기 90개 데이터 → 지속 수집 → 데이터 증가 → Loss 감소 → 성능 향상
+- **데이터 처리 및 학습 파이프라인**
+  • 실시간 추론 중 데이터 수집 → data/new 저장
+	• 일정 주기 또는 트리거 발생 시 Airflow 파이프라인 실행
+	• data/new 데이터를 검수/정제 후
+  • → 날짜 기반 디렉토리 (YYYY-MM-DD)로 data/processed에 이동
+	• 모델 재학습 수행
+	• 학습 완료 후 data/new 디렉토리는 초기화 (비워짐)
 
 ---
 
@@ -88,38 +112,74 @@
 
 ## 📂 프로젝트 구조 (Directory Structure)
 
-📂 SOScctv
- ┣ 📂 airflow/              # Airflow 환경 및 DAG 설정
- ┃ ┗ 📂 dags/
- ┃   ┗ 📜 soscctv_workflow.py
- ┣ 📂 data/                 # 데이터 저장소
- ┃ ┣ 📂 new/                # 캡쳐된 신규 데이터 (Raw)
- ┃ ┗ 📂 processed/          # 날짜별 정제 데이터 (Gold)
- ┣ 📂 models/               # 모델 정의 및 가중치 파일
- ┃ ┣ 📜 model.py            # ActionTransformer 구조
- ┃ ┗ 📜 action_model.pth    # 최신 학습 가중치
- ┣ 📂 scripts/              
- ┃ ┗ 📜 train.py            # MLflow 연동 재학습 스크립트
- ┣ 📜 main_inference.py     # 실시간 추론 및 수집 메인 프로그램
- ┣ 📜 mlflow.db             # MLflow 메타데이터 DB
- ┗ 📜 requirements.txt      # 의존성 패키지 목록
+## 📂 Project Structure
 
- ##🚀 트러블 슈팅 (Troubleshooting)
-### 🔧 이슈 1: macOS(M3) 환경의 Airflow SIGSEGV 에러
-문제: BashOperator 실행 시 macOS 보안 정책으로 인해 프로세스 포크(Fork) 중 세그멘테이션 폴트 발생.
+```
+SOScctv/
+├── airflow/              # Airflow 환경 및 DAG 설정
+│   └── dags/
+│       └── soscctv_workflow.py
+├── data/                 # 데이터 저장소
+│   ├── new/              # 캡쳐된 신규 데이터 (Raw)
+│   └── processed/        # 날짜별 정제 데이터 (Seed)
+├── models/               # 모델 정의 및 가중치 파일
+│   ├── model.py          # ActionTransformer 구조
+│   └── action_model.pth  # 최신 학습 가중치
+├── scripts/
+│   └── train.py          # MLflow 연동 재학습 스크립트
+├── main_inference.py     # 실시간 추론 및 수집 메인 프로그램
+├── mlflow.db             # MLflow 메타데이터 DB
+└── requirements.txt      # 의존성 패키지 목록
+```
 
-해결: * OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES 환경 변수 설정.
+## 🚀 트러블 슈팅 (Troubleshooting)
 
-airflow.cfg 내 mp_start_method를 spawn으로 변경하여 해결.
+### 🔧 이슈 1: 데이터셋 수집 시 MediaPipe 관절 인식 한계
+문제: 초기 데이터 수집 과정에서 작은 동작이나 미세한 변화가 제대로 인식되지 않는 문제가 발생.
 
-### 🔧 이슈 2: Python 3.12와 MediaPipe/Protobuf 호환성
-문제: AttributeError: 'SymbolDatabase' object has no attribute 'GetPrototype' 발생.
+원인: 촬영 거리 및 관절 인식 영역이 작아 MediaPipe가 일부 동작을 안정적으로 추출하지 못함.
 
-원인: Protobuf 5.x 버전과의 인터페이스 불일치.
+해결:
+- 다양한 거리, 각도, 조명 환경에서 반복적으로 데이터 수집
+- 약 200회 이상의 모션 캡쳐를 통해 데이터 다양성 확보
+- 인식 안정성이 높은 샘플만 선별하여 초기 Seed Dataset 구성
 
-해결: pip install "protobuf<5.0.0"으로 버전을 고정하여 라이브러리 간 통신 정상화.
+---
 
-### 🔧 이슈 3: Airflow 실행 시 상대 경로 인식 불가
-문제: 터미널과 달리 Airflow 스케줄러 환경에서 data/ 경로를 찾지 못해 학습 실패.
+### 🔧 이슈 2: Python 3.12와 MediaPipe / Protobuf 호환성 문제
+문제: 실행 중 아래와 같은 에러 발생
+AttributeError: 'SymbolDatabase' object has no attribute 'GetPrototype'
 
-해결: os.path.abspath(__file__)를 활용한 프로젝트 루트 기준 절대 경로 시스템 도입으로 실행 환경 독립성 확보.
+원인: Protobuf 5.x 버전과 MediaPipe 간 인터페이스 호환성 문제
+
+해결:
+- Protobuf 버전을 5.x 미만으로 고정하여 해결
+- 명령어:
+  pip install "protobuf<5.0.0"
+
+---
+
+### 🔧 이슈 3: macOS (M3) 환경에서 Airflow SIGSEGV 에러
+문제: BashOperator 실행 시 프로세스 Fork 과정에서 세그멘테이션 폴트 발생
+
+원인: macOS의 보안 정책과 Python multiprocessing 방식 충돌
+
+해결:
+- 환경 변수 설정:
+  export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+- airflow.cfg 설정 변경:
+  mp_start_method = spawn
+
+---
+
+### 🔧 이슈 4: Airflow 실행 시 상대 경로 인식 불가
+문제: Airflow 스케줄러 환경에서 data/ 경로를 찾지 못해 학습 실패
+
+원인: 실행 환경이 달라지면서 상대 경로 기준이 변경됨
+
+해결:
+- 프로젝트 루트 기준 절대 경로 방식 도입
+- 예시 코드:
+  import os
+  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+```
