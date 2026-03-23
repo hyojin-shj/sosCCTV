@@ -9,10 +9,11 @@
 - **한 줄 소개**:  
   > 멈춰있는 모델이 아닌, 수집된 데이터로 매주 스스로 성장하는 지능형 SOS CCTV 시스템
   
+### 📊 실시간 행동 인식 결과 (Real-time Inference)
+
 | **Normal (상시 모니터링)** | **Fall (낙상 감지)** | **Help (도움 요청)** |
 | :---: | :---: | :---: |
-| <img width="100%" alt="normal" src="https://github.com/user-attachments/assets/5b3d882f-6c89-447c-9f7b-c1c37a52231f" /> | <img width="100%" alt="fall" src="https://github.com/user-attachments/assets/6c93ce44-c673-45a7-ba29-dbca18e5c561" /> | <img width="100%" alt="help" src="https://github.com/user-attachments/assets/eb6e4f80-3bb2-4aa6-b0ba-d23367025d26" /> |
-| 녹색 텍스트로 안정 상태 표시 | 빨간색 텍스트로 위험 알림 전송 | 디스코드 웹훅으로 스크린샷 전송 |
+| <img src="https://github.com/user-attachments/assets/5b3d882f-6c89-447c-9f7b-c1c37a52231f" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="normal" /> | <img src="https://github.com/user-attachments/assets/6c93ce44-c673-45a7-ba29-dbca18e5c561" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="fall" /> | <img src="https://github.com/user-attachments/assets/eb6e4f80-3bb2-4aa6-b0ba-d23367025d26" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="help" /> |
 
 ## 💡 프로젝트 배경
 - **실시간성**: 위험 상황 발생 시 즉각적인 감지 및 알림(Discord) 필요  
