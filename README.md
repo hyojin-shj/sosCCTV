@@ -16,13 +16,17 @@
   </tr>
   <tr>
     <td align="center">
-      <img src="/Users/hyojin/Desktop/SOScctv/github/normal.png" width="300"/>
+<img width="1470" height="956" alt="normal" src="https://github.com/user-attachments/assets/5b3d882f-6c89-447c-9f7b-c1c37a52231f" />
+
     </td>
     <td align="center">
-      <img src="/Users/hyojin/Desktop/SOScctv/github/fall.png" width="300"/>
+      <img width="300"alt="fall" src="https://github.com/user-attachments/assets/6c93ce44-c673-45a7-ba29-dbca18e5c561" />
+
+
     </td>
     <td align="center">
-      <img src="/Users/hyojin/Desktop/SOScctv/github/help.png" width="300"/>
+	<img width="567" height="403" alt="help" src="https://github.com/user-attachments/assets/eb6e4f80-3bb2-4aa6-b0ba-d23367025d26" />
+
     </td>
   </tr>
 </table>
