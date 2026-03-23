@@ -80,19 +80,25 @@
 
 ### 1️⃣ 실시간 행동 추론 및 데이터 수집 (`main_inference.py`)
 
-| **관절 추출 및 추론 (MediaPipe)** | **S키 데이터 수집 (Raw)** |
-| :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/5b3d882f-6c89-447c-9f7b-c1c37a52231f" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="mediapipe_inference" /> | <img src="https://github.com/user-attachments/assets/eb6e4f80-3bb2-4aa6-b0ba-d23367025d26" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="s_key_capture" /> |
-| **MediaPipe Pose** 기반 **17개 관절 추출**<br>60프레임 단위 행동 분석 및 추론 | **`S` 키** 입력 시 현재 버퍼 데이터 저장 (`data/new`) |
+- MediaPipe Pose 기반 **17개 관절 추출**
 
+- 60프레임 단위 행동 분석
+
+- `S` 키 입력 시 데이터 저장 (`data/new`)
+
+- 실시간 스크린샷 전송: 위험 감지 시 현장 사진을 JPEG로 인코딩하여 디스코드로 즉시 전송
+
+- 지능형 알림: 신뢰도(Probability) 90% 이상인 경우에만 알림을 쏘아 오탐지 최소화
 ---
 
 ### 2️⃣ Airflow 전수 재학습 자동화 (`soscctv_workflow.py`)
 
 | **Airflow DAG Workflow** | **데이터 분류 및 전수 재학습** |
 | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/1e5ada9f-1e33-4bca-a559-a4f974e028fc" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="airflow_dag" /> | <img src="https://github.com/user-attachments/assets/6c93ce44-c673-45a7-ba29-dbca18e5c561" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="data_processed" /> |
-| **`data/new` 수거** → **`data/processed/YYYY-MM-DD/` 자동 정리**<br>주기적 재학습 스케줄링 및 모델 지속 개선 | **`glob.glob(recursive=True)`**를 활용하여<br>**모든 과거 데이터를 포함한 전수 재학습** 진행 (망각 방지) |
+| <img src="https://github.com/user-attachments/assets/1e5ada9f-1e33-4bca-a559-a4f974e028fc" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="airflow_dag" /> | 
+
+- **`data/new` 수거** → **`data/processed/YYYY-MM-DD/` 자동 정리**<br>주기적 재학습 스케줄링 및 모델 지속 개선
+- **`glob.glob(recursive=True)`**를 활용하여<br>**모든 과거 데이터를 포함한 전수 재학습** 진행 (망각 방지) 
 
 ---
 
@@ -110,7 +116,9 @@
 | **디스코드 텍스트 + 스크린샷 알림** |
 | :---: |
 | <img src="https://github.com/user-attachments/assets/748a9bb4-ba93-4b6b-9619-89cba9917d1b" width="300px" height="300px" style="object-fit: cover; border-radius: 8px;" alt="discord_alert_with_image" /> |
-| **위험 상황 발생 시 실시간 알림**: 현장 사진을 **JPEG로 인코딩**하여 텍스트 메시지와 함께 즉시 전송<br>**지능형 알림**: 신뢰도(Probability) **90% 이상**인 경우에만 알림을 쏘아 오탐지 최소화<br>**쿨타임 설정**: 짧은 시간 내 도배되는 알림 방지 로직 적용 |/>
+
+- **위험 상황 발생 시 실시간 알림**: 현장 사진을 **JPEG로 인코딩**하여 텍스트 메시지와 함께 즉시 전송<br>
+- **지능형 알림**: 신뢰도(Probability) **90% 이상**인 경우에만 알림을 쏘아 오탐지 최소화<br>**쿨타임 설정**: 짧은 시간 내 도배되는 알림 방지 로직 적용 
 
 
 ---
